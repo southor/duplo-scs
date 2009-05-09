@@ -24,6 +24,17 @@ struct SCSMidiController
 	double defVal;
 	double val;
 	double *SCSController;
+
+	void reverseUpdateController()
+	{			
+		if ((span > 0.0) &&  (SCSController != NULL)) val = (*SCSController + central) / span;
+		else  val = central;
+	}
+
+	void updateController()
+	{
+		if (SCSController != NULL) *SCSController = central + val*span;
+	}
 };
 
 class SCSPlayer : public Dup::Dup_Module
@@ -181,10 +192,7 @@ public:
 		if (controller != NULL)
 		{
 			controller->val = newVal;
-			if (controller->SCSController != NULL)
-			{
-				*(controller->SCSController) = controller->central + newVal*controller->span;
-			}
+			controller->updateController();
 		}
 		else
 		{
@@ -217,9 +225,33 @@ public:
 		SCSMidiController *controller = findController(midiController);
 		if (controller != NULL)
 		{
+			controller->reverseUpdateController();
 			return controller->val;
 		}
 		else return 0.0;		
+	}
+
+	// @returns size of the buffer allocated (buffer is always full)
+	int constructMidiBufferFromControllers(int midiChannel, dup_uint8 *&buffer)
+	{		
+		if (nControllers <= 0)
+		{			
+			buffer = NULL;
+			return 0;
+		}
+		else
+		{
+			int size = nControllers*2 + 1;
+			buffer = new dup_uint8[size];
+			buffer[0] = 0xB0 + midiChannel; // set status byte
+			for(int i=0; i<nControllers; ++i)
+			{
+				(controllers+i)->reverseUpdateController();
+				buffer[i*2+1] = (controllers+i)->midiController;
+				buffer[i*2+2] = (controllers+i)->val / 128.0;
+			}
+			return size;
+		}		
 	}
 
 	dup_val getVolMod()

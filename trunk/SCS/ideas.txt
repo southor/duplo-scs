@@ -36,3 +36,5 @@ ta FBack lägg lager av dem ovanpå varandra med olika "Thin" bredder för varje la
 Vid feedback, det låter väldigt olika för varje to lösn: (använd flera lager med olika delay)
 
 Ta instrumenten (basen + klocka) från klock-låten (old) och lägg in i SCS.
+
+testa att ha flera alterativ på cymbal effekten. (Percussion), Testa att Göra så att Trash minskar med tiden?
