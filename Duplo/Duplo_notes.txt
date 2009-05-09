@@ -1,0 +1,50 @@
+bara en tråd skall tillåtas hantera meddelanden..
+alla meddelanden läggs på en sorterad kö...
+
+timePos kanske skall finnas i ModuleHandler
+där variabeln finns att läsa för andra moduler?
+
+
+börja använda exceptions
+
+börja använda STL
+
+lägga till en 32 bitars "format" i Dup_Patch
+så att man kan ladda in olika typer av patchar (double, float precision)
+
+
+ha andra format på inputs och outputs data,
+stegande värden (används tex hos en  snabbt växlande game-of-life)
+även array-format som just game-of-life där en hel array av data
+skall kunna skickas som invärde. Dela även upp i single och multiports
+där single bara kan ha en sladd men multi kan ha många.
+
+-klart  feltesta swapBytes()
+
+Göra en klasshiarki av NotePlayer, den delar mycket med SCSPlayer
+
+
+
+det kanske är okej för en modul att anropa dispatchMessage
+direkt istället för postMessage i vissa fall, så att medelandet
+hanteras direkt. RecieveMessage() har rättighet att göra detta
+men ej run()
+
+
+inputs och outputs skall heta inports och outports
+lägg in 
+typedef dup_uint16 dup_portid
+och lägg in på alla inputs och outputs
+
+modulehandler måste både kontrollera att en modul inte redan finns
+med och att id inte redan är upptaget.
+
+vissa SCS instrument "klickar" i Dup, tex OrganBass
+
+kanske göra så att alla Message-types finns listade som konstanter så att man
+kan använda dem istället (och alltså byta om man vill)
+
+Modulation läggs kanske felaktigt på. Adderas bara istället för att multipliceras in?
+Isåfall blir ju modulationen kraftigare ju lägre volym (eller kanske expression?) man har.
+
+Temo ändringar: lyssna på tempo.wav

@@ -1,0 +1,4 @@
+-klart  hur gör man motsvarande (statiska medlemmar i java) i C++ ??
+        tex medlemssmetoder.    
+
+

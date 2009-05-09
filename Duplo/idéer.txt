@@ -1,0 +1,24 @@
+Reverb: Fixa ett dynamiskt delay där delayer kan ändras under real time
+Observation: toner kan resonera i reverbet, kan vara både önskvärt och icke önskvärt.
+
+En lösning: räkna ut delay tider som ej överensstämmer med någon ton i skalan (ej heller övertoner till dem)
+Lösning: Gör en lista på alla frekvenser som finns representerade, gå igenom listan och skapa en ny lista där samtliga övertoner tas med.
+(representera frekvenserna med någon form av intergers så att jämförelse alltid kan ske)
+När en slutgiltig lista skapas där inga dubbletter finns med så kan listan användas när en delay-tid skall väljas. Vill man ha ca 50 ms så
+välj en passande frekvens i närheten av detta.
+
+Nästa lösning:
+Ändra delay tiderna konstant i real-time. Då bryts resonanserna sönder hela tiden och får aldrig fäste.
+
+Lägg sedan till en funktion som gör att delay-linan kan ändra längd till bestämda tidslängder under körning.
+(Då kan man välja en som passar med tonen hela tiden och således blir delayen en del av tongenereringen)
+
+
+
+Skapa nyt brus-generator genom att placera sinus kurvor på slumpmässiga positioner.
+Längden på sinus kurvorna kan variera (frekvens).
+Även antalte sinuskurvor på rad kan varieras (från 1 till x)
+Med många sinus på rad plus liknande frekvens skapas mer som en ton.
+
+Testa att göra om percussion (eller ny cymbal-percussion)  som kan ha att trash-noise ökar istället för minskar med tiden.
+Kanske flera lager av sådant noise kan användas som minskar eller ökar sitt trash på olika frekvenser.

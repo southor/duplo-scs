@@ -1,0 +1,65 @@
+Add to channel-reverb:
+	Gradually add the reverb to the output sound for each note-on.
+	This will remove the immediate echoes that appears in the beginning of each response from the reverb.
+	(particullary Useful for drums?)
+
+
+Nakos - idé
+	För varje ny noteon byt dist-värde.
+	dist-värde höj eller sänk hastighet varierar (från stillastående till fort)
+	Men den slår i max innan tonen är slut också, max värde kan också variera.
+	På detta kan noise läggas, (långt eller kort) med olika frekvens på noise-ljudet.
+	(Skapa basic-nakos funktion som bägge instrumenten kan bygga på?)
+
+tick-ljud percussion
+	inför tick-ljudet (hi-hat i percussion) alternativt försök återskapa det med en kort burst med kraftig FM.
+
+
+drum-set
+	Glöm inte fixa en massa cymbal-varianter. (kolla om det går köra i samma drum-instrument också med olika modifications).
+	Fixa andra drums också, afrikanska trummor mm.
+	Släng in annan snare från percussion också.
+
+
+Compression, Reverb, Filter etc...
+	Inför ett controller meddelande där någon del av kedjan kan kopplas om så att den hanteras av en annan channel?
+
+Möjliggör multiinstrument:
+	Flera instrument kan väljas på samma channel genom att hoppa mellan ett speciellt instrument_number värde.
+	När man har bytt denna instrument_number så kan man sätta mod värden, expression, pan, compressor_in_gain, specifikt för detta instrument_number.
+	Men samtliga kontroller går även att sätta för hela channel (channel_common). InstrumentNumber = 0 är tillför att sätta channel_common kontrollerna.
+	Det är bara för mod värden, expression, pan och in-gain som
+	InstrumentNumber påverkar. För övriga så sätts ju channel_common då varje instrument ändå inte har egna värden för alla kontroller.
+	InstrumentNumber = 0 är default men används för att sätta expression, pan och in_gain controller på channel_common.
+	Alla värden passerar nämligen genom dessa och då kan man påverka expression och in_gain för hela channel på en gång.
+	Om man bara använder ett instrument så behöver man inte byta InstrumentNumber, då fungerar allt som "vanligt".
+	Men om man använder MultiInstrumnet så bör InstrumentNumber = 0 patch inte sättas alternativt sättas till partch nummer noll som betyder "tyst".
+
+Uppfräshad Duplo-SCS:
+	Erbjud en wav-fil per kanal.
+	Erbjud ett grafiskt interface. (Försök använda SGui).
+	Erbjud både direct-sound buffert standard updatering teknik samt min specialare för updatering.
+	Försök kompilera till färdig fil som fungerar. Låt en solution generera flera varianter?
+	Gör projektet plugin-byggt. Då kan både den nya synthen och den gamla kopplas in i framtiden.
+	Varje process använder sin egen synth. Flera instanser av samma synth kan skapas (dra nytta av multicore).
+	Huvudprocesen som mixar alla processers ojud bör vara designat att också kunna köra en synth.
+	(Ifall det lagg-problemen ökar med flera processer)
+	Varje process kan innehålla flera kanaler, och varje process kan använda en egen sample rate, (Multiplar av varandra).
+	Varje channel skall kunna ha en egen sample rate (exakt sample rate), men om den inte sätts blir den samma som processen och därmed behövs ingen översättning.
+	Skall kunna hantera godtyckligt antal midi-ports.
+	Möjlighet att starta om på olika nivåer. (Åtminstånde starta om hela systemet, alla destruktorer körs och allt skapas på nytt).
+	Måste kunna ställa om alla channel-controllers till default med en knapptryckning
+	Tangentbords-keyboard kan vara bra men inför kanske en knapp som byter mellan keyboad mode och control mode (där synthen kontrolleras).
+	Använd NRPRN (spara gammal mappning med ctrl också) (checka IRL-prog-mapp)
+	
+Ytterligare ändringar/features:
+    Använd processer: midi-kanalerna kan spelas på flera  olika processer. Streama resultatet till en outpout process.
+    Prova att sätta reverbet till noll som default.
+    Versioner: varje midi-kanal kan välja att köras i en viss version. versionsnummret sparas i varje voice-instans också så att varje instrument kan ha flera versioner.
+    Erbjud alltså 127 versioner till att börja med. (möjligt att införa dubbel-controller senare)
+	
+	stöd varierande tempo.
+	stöd real-time uppspelning, men kör även med events för att uppdatera buffert (stöd båda varianterna).
+	inför versioner (skickas meddelande i början av midi track)
+
+ 	Möjliggör att kunna resetta alla inställningar till default som alla instrument och kanaler har enkelt med knapptryckning.
