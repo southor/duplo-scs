@@ -1,0 +1,5 @@
+- start with generation 4
+- Use E instead of Amp..
+- don't loop Pos all the time, only once 
+- use notification to tell a module that some
+  in-value has changed?

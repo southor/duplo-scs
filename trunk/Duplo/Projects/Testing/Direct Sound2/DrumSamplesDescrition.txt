@@ -1,0 +1,16 @@
+#
+#   filename   volume
+#
+59 cymbal1.wav 	1.0
+57 cymbal1.wav 	1.0
+55 cymbal1.wav 	1.0
+54 tamb.wav 	1.0
+52 cymbal1.wav 	1.0
+51 cymbal1.wav 	1.0
+49 cymbal1.wav 	1.0
+46 hihat.wav 	1.0
+44 hihat.wav 	1.0
+42 hihat.wav 	1.0
+40 drum1.wav 	1.0
+38 drum1.wav 	1.0
+36 basdrum.wav 	1.0
