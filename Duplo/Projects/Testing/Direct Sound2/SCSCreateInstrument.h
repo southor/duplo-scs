@@ -1285,35 +1285,39 @@ void SCSCreateInstrument(SCSPlayer *SCSP, SoundCollector *soundCollector, dup_ui
 		case 43:
 		{
 			Additive *instrument = addAddetive(SCSP, soundCollector, "addetive1.bmp");
-			instrument->Vol *= 1.5;
+			instrument->Vol *= 2.0;
 
 			if (SHOW_ADDITIVE) MessageBox(NULL,"instrument 1 choosen","ok",MB_OK);
 		}
 		break;
 		case 44:
 		{
-			addAddetive(SCSP, soundCollector, "addetive2.bmp");
+			Additive *instrument = addAddetive(SCSP, soundCollector, "addetive2.bmp");
+			instrument->Vol *= 1.5;
 
 			if (SHOW_ADDITIVE) MessageBox(NULL,"instrument 2 choosen","ok",MB_OK);
 		}
 		break;
 		case 45:
 		{
-			addAddetive(SCSP, soundCollector, "addetive3.bmp");
+			Additive *instrument = addAddetive(SCSP, soundCollector, "addetive3.bmp");
+			instrument->Vol *= 3.0;
 
 			if (SHOW_ADDITIVE) MessageBox(NULL,"instrument 3 choosen","ok",MB_OK);
 		}
 		break;
 		case 46:
 		{
-			addAddetive(SCSP, soundCollector, "addetive4.bmp");
+			Additive *instrument = addAddetive(SCSP, soundCollector, "addetive4.bmp");
+			instrument->Vol *= 2.0;
 
 			if (SHOW_ADDITIVE) MessageBox(NULL,"instrument 4 choosen","ok",MB_OK);
 		}
 		break;
 		case 47:
 		{
-			addAddetive(SCSP, soundCollector, "addetive5.bmp");
+			Additive *instrument = addAddetive(SCSP, soundCollector, "addetive5.bmp");
+			instrument->Vol *= 2.0;
 
 			if (SHOW_ADDITIVE) MessageBox(NULL,"instrument 5 choosen","ok",MB_OK);
 		}
@@ -1321,28 +1325,31 @@ void SCSCreateInstrument(SCSPlayer *SCSP, SoundCollector *soundCollector, dup_ui
 		case 48:
 		{
 			Additive *instrument = addAddetive(SCSP, soundCollector, "addetive6.bmp");
-			//instrument->Vol *= 1.5;
+			instrument->Vol *= 2.0;
 
 			if (SHOW_ADDITIVE) MessageBox(NULL,"instrument 6 choosen","ok",MB_OK);
 		}
 		break;
 		case 49:
 		{
-			addAddetive(SCSP, soundCollector, "addetive7.bmp");
+			Additive *instrument = addAddetive(SCSP, soundCollector, "addetive7.bmp");
+			instrument->Vol *= 2.0;
 
 			if (SHOW_ADDITIVE) MessageBox(NULL,"instrument 7 choosen","ok",MB_OK);
 		}
 		break;
 		case 50:
 		{
-			addAddetive(SCSP, soundCollector, "addetive8.bmp");
+			Additive *instrument = addAddetive(SCSP, soundCollector, "addetive8.bmp");
+			instrument->Vol *= 2.0;
 
 			if (SHOW_ADDITIVE) MessageBox(NULL,"instrument 8 choosen","ok",MB_OK);
 		}
 		break;
 		case 51:
 		{
-			addAddetive(SCSP, soundCollector, "addetive9.bmp");
+			Additive *instrument = addAddetive(SCSP, soundCollector, "addetive9.bmp");
+			instrument->Vol *= 2.0;
 
 			if (SHOW_ADDITIVE) MessageBox(NULL,"instrument 9 choosen","ok",MB_OK);
 		}
@@ -1350,21 +1357,24 @@ void SCSCreateInstrument(SCSPlayer *SCSP, SoundCollector *soundCollector, dup_ui
 		case 52:
 		{
 			Additive *instrument = addAddetive(SCSP, soundCollector, "addetive10.bmp");
-			instrument->Resolution = 1000;
+			//instrument->Resolution = 1000;
+			instrument->Vol *= 2.0;
 			
 			if (SHOW_ADDITIVE) MessageBox(NULL,"instrument 10 choosen","ok",MB_OK);
 		}
 		case 53:
 		{
 			Additive *instrument = addAddetive(SCSP, soundCollector, "addetive11.bmp");
-			instrument->Resolution = 1000;
+			//instrument->Resolution = 1000;
+			instrument->Vol *= 2.0;
 			
 			if (SHOW_ADDITIVE) MessageBox(NULL,"instrument 11 choosen","ok",MB_OK);
 		}
 		case 54:
 		{
 			Additive *instrument = addAddetive(SCSP, soundCollector, "addetive12.bmp");
-			instrument->Resolution = 1000;
+			//instrument->Resolution = 1000;
+			instrument->Vol *= 2.0;
 			
 			if (SHOW_ADDITIVE) MessageBox(NULL,"instrument 12 choosen","ok",MB_OK);
 		}
