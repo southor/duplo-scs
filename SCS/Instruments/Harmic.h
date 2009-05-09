@@ -18,6 +18,9 @@ public:
 	// modification
 	double EchoQuantity;
 	double Decay;
+	double Mod1;
+
+	static const int K_MAP = 4;
 
 	Harmic() : STInstrument()
 	{
@@ -59,10 +62,11 @@ public:
 				Echo->NoteOff();
 			}
 		
-			
+			double ActualMod = 1.0 - 1.0 / (K_MAP*Mod1 + 1);
+			ActualMod /= (K_MAP / (K_MAP + 1.0));
 
 			Pos = Pos + TimeStep*Fre;
-			Amp = NegSine(Pos + Sine(Pos*2.0+0.23 + Tri(Pos)*0.4)*0.4*(1.2-Env1->Amp*0.3))*0.8 + NegSine(Pos)*0.5 + NegSine(Pos*4)/8 + NegSine(Pos*5)/10 + BSine(Pos+0.5,0.1)*0.15;
+			Amp = NegSine(Pos + Sine(Pos*2.0+0.23 + TriSaw(Pos, Mod1)*0.4)*0.4*(1.2-Env1->Amp*0.3))*0.8 + NegSine(Pos)*0.5 + NegSine(Pos*4)/8 + NegSine(Pos*5)/10 + BSine(Pos+0.5,0.1)*0.15;
 			//Amp = Amp + Crossfade((TriSqr(Pos, 0.9)+TriSqr(Pos+0.34, -0.9))*0.5, rSin(Pos*2 + Tri(Pos*8+0.2)*0.2), rSin(Pos + 0.87))*0.7;
 			//Amp = Amp + (BSine(Pos,0.05)+BSine(Pos+0.2,0.1)+BSine(Pos+0.5,0.08)+BSine(Pos+0.3,0.2))*0.3/4.0;
 			Amp = Amp * Fall2(TimePos*Decay) * Env1->Amp;

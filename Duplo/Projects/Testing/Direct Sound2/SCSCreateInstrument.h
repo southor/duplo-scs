@@ -31,11 +31,18 @@ Additive* addAddetive(SCSPlayer *SCSP, SoundCollector *soundCollector, char *fil
 			controller.SCSController = &(SCSi1->HarmonicScaling);
 			SCSP->setController(controller, 1);
 
-	controller.central = 0.5;
+	//controller.central = 0.5;
+	//		controller.span = 0.5;
+	//		controller.defVal = -1.0;
+	//		controller.midiController = 41; // mod2
+	//		controller.SCSController = &(SCSi1->Apply1Bool);
+	//		SCSP->setController(controller, 2);
+
+		controller.central = 0.5;
 			controller.span = 0.5;
-			controller.defVal = -1.0;
+			controller.defVal = 1.0;
 			controller.midiController = 41; // mod2
-			controller.SCSController = &(SCSi1->Apply1Bool);
+			controller.SCSController = &(SCSi1->CutOff);
 			SCSP->setController(controller, 2);
 
 	
@@ -470,7 +477,7 @@ void SCSCreateInstrument(SCSPlayer *SCSP, SoundCollector *soundCollector, dup_ui
 			soundCollector->setInstrument(SCSi1);
 			soundCollector->addAP(&(SCSi1->Amp), NULL, soundCollector->getInstrumentUse());
 
-			SCSP->newControllers(6);
+			SCSP->newControllers(7);
 			
 			attackController.SCSController = &(SCSi1->Env1->Attack);
 			holdController.SCSController = &(SCSi1->Env1->Hold);
@@ -497,6 +504,14 @@ void SCSCreateInstrument(SCSPlayer *SCSP, SoundCollector *soundCollector, dup_ui
 			controller.midiController = 34; // real decay (inverted)
 			controller.SCSController = &(SCSi1->Decay);
 			SCSP->setController(controller, 5);
+
+			// add mod1
+			controller.central = 0.5;
+			controller.span = 0.5;
+			controller.defVal = -1.0;
+			controller.midiController = 40; // brightness
+			controller.SCSController = &(SCSi1->Mod1);
+			SCSP->setController(controller, 6);
 
 
 		}
@@ -1345,6 +1360,13 @@ void SCSCreateInstrument(SCSPlayer *SCSP, SoundCollector *soundCollector, dup_ui
 			instrument->Resolution = 1000;
 			
 			if (SHOW_ADDITIVE) MessageBox(NULL,"instrument 11 choosen","ok",MB_OK);
+		}
+		case 54:
+		{
+			Additive *instrument = addAddetive(SCSP, soundCollector, "addetive12.bmp");
+			instrument->Resolution = 1000;
+			
+			if (SHOW_ADDITIVE) MessageBox(NULL,"instrument 12 choosen","ok",MB_OK);
 		}
 		break;
 		case 73:

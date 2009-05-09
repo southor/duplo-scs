@@ -15,8 +15,6 @@ int playDSBuffer(LPDIRECTSOUNDBUFFER m_pDSbuffer);
 int transpose;
 
 
-
-
 class DS2MidiReceiver : Dup::MidiEventReceiver
 {
 public:
@@ -24,6 +22,8 @@ public:
 	static const int CHANNEL_PRESSURE_CONTROLLER = N_CONTROLLER_LAYERS;
 
 	static const int DEFAULT_CHANNEL_PRESSURE_CONTROLLER = 1; // Modulation controller
+
+	static const dup_uint8 FEEDBACK_CHANNEL = 0;
 
 	enum
 	{
@@ -43,6 +43,9 @@ public:
 	
 
 private:
+
+	// midi feedback trigger
+	int midiFeedbackTriggerChannel;
 
 	int drumChannel;
 	int midiReceiver;
@@ -84,6 +87,7 @@ public:
 		this->nDrums = nDrums;
 		this->realTime = realTime;
 		this->waveFre = waveFre;
+		this->midiFeedbackTriggerChannel = 0;
 
 		type = 0xA0; // noteoff
 		channel = 0x00; // channel 1
@@ -106,6 +110,11 @@ public:
 			}
 		}
 	}
+
+	//int getMidiFeedbackChannel()
+	//{
+	//	return this->midiFeedbackTriggerChannel;
+	//}
 
 	void setAcceptedChannel(char acceptedChannel)
 	{
@@ -183,8 +192,17 @@ public:
 		controllerValue[channel][controller][controllerLayer] = value;
 	}
 
-	// @param source Range: 0..N_CONTROLLER_LAYERS-1 or CHANNEL_PRESSURE_CONTROLLER
-	int receiveEvent(dup_uint8 *data, int source, int nChannels)
+	inline int receiveEvent(dup_uint8 *data, int source, int nChannels)
+	{
+		bool dummy;
+		return receiveEvent(data, source, nChannels, dummy);
+	}
+
+	/**
+	 * @param data In out parameter. The channel field in the message is changed when param 'sendFeedback' is true
+	 * @param source Range: 0..N_CONTROLLER_LAYERS-1 or CHANNEL_PRESSURE_CONTROLLER
+	 */
+	int receiveEvent(dup_uint8 *data, int source, int nChannels, bool &sendFeedback)
 	{
 		assert(data != NULL);
 		if (data == NULL) MessageBox(NULL, "midi data null","error",MB_OK);
@@ -199,7 +217,7 @@ public:
 			channel = (*(data+0) & 0x0F);
 
 			++headSize;
-			++data;
+			//++data;
 
 			//if (channel > nChannels) MessageBox(NULL, "channel number not supported","message",MB_OK);
 		}
@@ -220,23 +238,32 @@ public:
 				((DEBUG_MODE_CHANNEL == DEBUG_ALL_BUT_ONE) && (channel != DEBUG_CHANNEL))))
 			{
 				dup_uint8 *debugSaveMsg = new dup_uint8[3];
-				//copychararray((char *)data, (char *)debugSaveMsg, 2);
 				debugSaveMsg[0] = type + channel;
-				debugSaveMsg[1] = data[0];
-				debugSaveMsg[2] = data[1];
+				debugSaveMsg[1] = data[1];
+				debugSaveMsg[2] = data[2];
 
 				queue.push(debugSaveMsg);
 			}	
 		}
 
-
-		return headSize + recieveEvent2(type, channel, data, source) - 1;
+		int size = headSize + recieveEvent2(type, channel, data+1, source, sendFeedback) - 1;
 		
-		return 0;
+		if (sendFeedback)
+		{
+			if (*(data+0) >= 0x80) // not same type and channel
+			{
+				// channel is changed to feedback channel
+				*(data+0) = ((*(data+0)) & 0xF0) | FEEDBACK_CHANNEL;
+				//MessageBox(NULL,"DS2MidiReceiver.h: sending feedback message","ok",MB_OK);
+			}
+		}
+		
+		return size;
 	}
 
-	int recieveEvent2(dup_uint8 type, dup_uint8 channel, dup_uint8 *restData, int source)
+	int recieveEvent2(dup_uint8 type, dup_uint8 channel, const dup_uint8 *restData, int source, bool &sendFeedback)
 	{
+		sendFeedback = false;
 		assert(restData != NULL);
 		if (restData == NULL) MessageBox(NULL, "midi data null","error",MB_OK);
 		
@@ -249,16 +276,19 @@ public:
 		
 			if (type == 0x90) // note on
 			{
-				
 
 				//dup_uint8 msgType = 0x80;
 				dup_uint8 note = *(restData+0) + transpose; 
 				dup_val vel = ((double)(*(restData+1)))/127.0;
 
-				if (note - transpose == 127) // special.. replay buffer
+				if (note - transpose == 127) // special.. triggers replay buffer
 				{
 					replayBuffer();
 				}
+				//else if (note - transpose == 126) // special.. triggers reset midi-feedback-trigger-channel
+				//{
+				//	midiFeedbackTriggerChannel = channel;
+				//}
 
 				//MessageBox(NULL, "midi mess noteon","message",MB_OK);
 
@@ -315,7 +345,8 @@ public:
 			{
 				//MessageBox(NULL, "midi mess pressure","message",MB_OK);
 				dup_uint8 newData[2] = {channelPressureController[channel], restData[0]};
-				recieveEvent2(0xB0, channel, newData, CHANNEL_PRESSURE_CONTROLLER); // send controller midi message
+				bool dummy;
+				recieveEvent2(0xB0, channel, newData, CHANNEL_PRESSURE_CONTROLLER, dummy); // send controller midi message
 
 				eventSize = 2;
 			}
@@ -384,8 +415,25 @@ public:
 			}
 			else if (type == 0xB0) // controller
 			{
+				
+
 				dup_uint8 cntrl = *(restData+0);
 				dup_uint8 data2 = *(restData+1);
+
+				if (cntrl == 21) // special.. triggers reset midi-feedback-trigger-channel
+				{ 
+					//midiFeedbackTriggerChannel = channel;
+					midiFeedbackTriggerChannel = 7-1;
+					sendFeedback = false;
+				}
+				else
+				{
+					// find out if feedback should be sent
+					sendFeedback = (channel == midiFeedbackTriggerChannel);
+				}
+
+				
+
 
 				//MessageBox(NULL, "controller","message",MB_OK);
 
@@ -405,6 +453,8 @@ public:
 				double value = USE_CC_ACCUMULATING ? getControllerValue(channel, cntrl) : (data2 / 128.0);
 				
 				SoundCollector *soundCollector;
+
+				
 
 				if (channel == 9) // drum channel
 				{

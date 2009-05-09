@@ -14,6 +14,11 @@ Nakos - idé
 tick-ljud percussion
 	inför tick-ljudet (hi-hat i percussion) alternativt försök återskapa det med en kort burst med kraftig FM.
 
+Variance-skruvratt
+	Istället för att köra med fasta inställningar, random eller alltid samma ljud-färg vid note-on
+	så skulle man kunna köra med en start-offsett skruv-knapp och en "variying" skruvknapp som alltså 
+	lägger på en varians runt start-offsetten. Med max variance så har start-offset ingen betydelse eftersom
+	det slumpas inom ranget.
 
 drum-set
 	Glöm inte fixa en massa cymbal-varianter. (kolla om det går köra i samma drum-instrument också med olika modifications).
@@ -63,3 +68,9 @@ Ytterligare ändringar/features:
 	inför versioner (skickas meddelande i början av midi track)
 
  	Möjliggör att kunna resetta alla inställningar till default som alla instrument och kanaler har enkelt med knapptryckning.
+
+   Kunna ändra instrument-modifiers utan klicks:
+   	T.ex. kör två parallella versioner av instrumentet och gradvis övergå från ena till andra. (tänk igenom det här).
+	
+   Kunna övervaka vad de olika voices gör. Kunna byta sådana saker, vad det grafiska interfacet skall visa för tillfället, (välja kanaler/tracks också).
+	
