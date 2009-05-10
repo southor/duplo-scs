@@ -172,8 +172,11 @@ public:
 
 	void replayBuffer()
 	{
-		m_pDSbuffer->Stop();
-		playDSBuffer(m_pDSbuffer);
+		if (realTime)
+		{
+			m_pDSbuffer->Stop();
+			playDSBuffer(m_pDSbuffer);
+		}
 	}
 
 	double getControllerValue(dup_uint8 channel, dup_uint8 controller)
@@ -246,7 +249,11 @@ public:
 			}	
 		}
 
+		
+
 		int size = headSize + recieveEvent2(type, channel, data+1, source, sendFeedback) - 1;
+
+		sendFeedback = sendFeedback && realTime;
 		
 		if (sendFeedback)
 		{
@@ -254,7 +261,7 @@ public:
 			{
 				// channel is changed to feedback channel
 				*(data+0) = ((*(data+0)) & 0xF0) | FEEDBACK_CHANNEL;
-				//MessageBox(NULL,"DS2MidiReceiver.h: sending feedback message","ok",MB_OK);
+				
 			}
 		}
 		
@@ -270,6 +277,13 @@ public:
 		SCSPlayer *SCSP;
 		int eventSize = 1;
 
+		
+		static int debug_counter = 0;
+		++debug_counter;
+		const static int COUNTER = 39;
+
+		//if (debug_counter > COUNTER) MessageBox(NULL,"event0","ok",MB_OK);
+
 		// Perhaps ignore message if the channelFilter is active
 		if (!filterChannels || (channel == acceptedChannel))
 		{
@@ -277,12 +291,24 @@ public:
 			if (type == 0x90) // note on
 			{
 
+
+				//if (debug_counter > COUNTER) MessageBox(NULL,"event1","ok",MB_OK);
+
 				//dup_uint8 msgType = 0x80;
 				dup_uint8 note = *(restData+0) + transpose; 
 				dup_val vel = ((double)(*(restData+1)))/127.0;
 
 				if (note - transpose == 127) // special.. triggers replay buffer
 				{
+					//char str[32];
+					//str[0] = type;
+					//str[1] = '0' + channel;
+					//str[2] = *(restData+0);
+					//str[3] = *(restData+1);
+					//str[4] = 0;
+					//MessageBox(NULL,str,"msg", MB_OK);
+					//if (debug_counter > COUNTER) MessageBox(NULL,"event1.12","ok",MB_OK);
+					
 					replayBuffer();
 				}
 				//else if (note - transpose == 126) // special.. triggers reset midi-feedback-trigger-channel
@@ -290,11 +316,13 @@ public:
 				//	midiFeedbackTriggerChannel = channel;
 				//}
 
+				//if (debug_counter > COUNTER) MessageBox(NULL,"event1.2","ok",MB_OK);
+
 				//MessageBox(NULL, "midi mess noteon","message",MB_OK);
 
 				if (vel == 0.0)
 				{
-					
+					//if (debug_counter > COUNTER) MessageBox(NULL,"event1.31","ok",MB_OK);
 					
 					Dup::MessageConstructor *msgC = new Dup::MessageConstructor(sizeof(double)+2, 128);
 					msgC->addData8(0x82);
@@ -303,11 +331,12 @@ public:
 
 					Dup::MessageParser msgP = msgC->getParser();
 
+					//if (debug_counter > COUNTER) MessageBox(NULL,"event1.32","ok",MB_OK);
 					mH->postMessage(0.0, channel*100+midiReceiver, msgP.getSize(), msgP.getMessage(), msgP.getFormat());
 				}
 				else
 				{
-					
+					//if (debug_counter > COUNTER) MessageBox(NULL,"event1.41","ok",MB_OK);
 
 
 					Dup::MessageConstructor *msgC = new Dup::MessageConstructor(sizeof(double)+2, 128);
@@ -317,15 +346,18 @@ public:
 
 					Dup::MessageParser msgP = msgC->getParser();
 
+					//if (debug_counter > COUNTER) MessageBox(NULL,"event1.42","ok",MB_OK);
 					mH->postMessage(0.0, channel*100+midiReceiver, msgP.getSize(), msgP.getMessage(), msgP.getFormat());
 				}
+
+				//if (debug_counter > COUNTER) MessageBox(NULL,"event1.5","ok",MB_OK);
 
 				eventSize = 3;
 				//if (realTime) replayBuffer();
 			}
 			else if (type == 0xA0) // after touch
 			{
-				// MessageBox(NULL, "midi mess aftertouch","message",MB_OK);
+				//MessageBox(NULL, "midi mess aftertouch","message",MB_OK);
 
 				dup_uint8 note = *(restData+0) + transpose;
 				double vel = ((double)(*(restData+1)))/127.0;
@@ -353,6 +385,7 @@ public:
 			else if (type == 0x80) // note off
 			{
 				//MessageBox(NULL, "midi mess noteoff","message",MB_OK);
+				//if (debug_counter > COUNTER) MessageBox(NULL,"midi mess noteoff","ok",MB_OK);
 				
 				//dup_uint8 msgType = 0x80;									
 				dup_uint8 note = *(restData+0) + transpose;
@@ -372,6 +405,7 @@ public:
 			else if (type == 0xC0) // patch select
 			{
 				//MessageBox(NULL, "patch select","message",MB_OK);
+				//if (debug_counter > COUNTER) MessageBox(NULL,"patch select","ok",MB_OK);
 				
 				if (channel != 9) // not the drum channel
 				{
@@ -413,9 +447,21 @@ public:
 				
 				if (realTime) replayBuffer();
 			}
-			else if (type == 0xB0) // controller
+			else if (type == 0xB0) // CC controller
 			{
-				
+				//if (debug_counter > COUNTER) MessageBox(NULL,"controller 01","ok",MB_OK);
+
+				//char str[32];
+				//str[0] = type;
+				//str[1] = '0' + channel;
+				//str[2] = itoa(*(restData+0));
+				//str[3] = *(restData+1);
+				//str[4] = 0;
+				//if (debug_counter > COUNTER) MessageBox(NULL,itoa(*(restData+0), str, 10),"msg", MB_OK);
+				//if (debug_counter > COUNTER && *(restData+0) == 7) MessageBox(NULL,str,"volume", MB_OK);
+				//__asm {
+				//	int 3
+				//}
 
 				dup_uint8 cntrl = *(restData+0);
 				dup_uint8 data2 = *(restData+1);
@@ -425,11 +471,15 @@ public:
 					//midiFeedbackTriggerChannel = channel;
 					midiFeedbackTriggerChannel = 7-1;
 					sendFeedback = false;
+
+					//if (debug_counter > COUNTER) MessageBox(NULL,"controller 02","ok",MB_OK);
 				}
 				else
 				{
 					// find out if feedback should be sent
 					sendFeedback = (channel == midiFeedbackTriggerChannel);
+
+					//if (debug_counter > COUNTER) MessageBox(NULL,"controller 03","ok",MB_OK);
 				}
 
 				
@@ -448,6 +498,8 @@ public:
 					assert(source >= 0 && source < N_CONTROLLER_LAYERS);
 					setControllerValue(channel, cntrl, source, data2);					
 				}
+
+				//if (debug_counter > COUNTER) MessageBox(NULL,"controller 04","ok",MB_OK);
 
 				
 				double value = USE_CC_ACCUMULATING ? getControllerValue(channel, cntrl) : (data2 / 128.0);
@@ -484,10 +536,13 @@ public:
 						}
 					}
 
+					//if (debug_counter > COUNTER) MessageBox(NULL,"controller 05","ok",MB_OK);
+
 				}
 				else
 				{
 
+					//if (debug_counter > COUNTER) MessageBox(NULL,"controller 06","ok",MB_OK);
 
 					
 					
@@ -505,6 +560,8 @@ public:
 					}
 					else if (cntrl == 0x0A) // set Pan
 					{
+						//if (debug_counter > COUNTER) MessageBox(NULL,"controller 06 pan","ok",MB_OK);
+						
 						double pan = data2 / 64.0 - 1.0;
 						for(int voice = 1;voice<=*(nVoices+channel);voice++)
 						{
@@ -718,6 +775,8 @@ public:
 					}					
 					else
 					{
+						//if (debug_counter > COUNTER) MessageBox(NULL,"else clause","ok",MB_OK);
+
 						for(int voice = 1;voice<=*(nVoices+channel);voice++)
 						{
 							
@@ -751,8 +810,11 @@ public:
 			else // not done yet, SYSEX?
 			{
 				eventSize = 3;
+				
 			}
 		}
+
+		//if (debug_counter > COUNTER) MessageBox(NULL,"event2","ok",MB_OK);
 
 		//MessageBox(NULL, "midi data handled","ok",MB_OK);
 

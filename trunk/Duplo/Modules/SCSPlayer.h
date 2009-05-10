@@ -18,7 +18,14 @@
 
 struct SCSMidiController
 {
-	dup_uint8 midiController;
+	dup_uint8 midiController;	
+	//dup_uint16 type;
+
+	//enum {
+	//	CC,
+	//	NRPN
+	//};
+
 	double central;
 	double span;	// span in each direction
 	double defVal;
@@ -248,7 +255,14 @@ public:
 			{
 				(controllers+i)->reverseUpdateController();
 				buffer[i*2+1] = (controllers+i)->midiController;
-				buffer[i*2+2] = (controllers+i)->val / 128.0;
+				//if ((controllers+i)->type == SCSMidiController::CC)
+				//{
+					buffer[i*2+2] = (controllers+i)->val / 128.0;
+				//}
+				//else
+				//{
+				//	buffer[i*2+2] = (controllers+i)->val / 16384.0;
+				//}
 			}
 			return size;
 		}		
@@ -271,16 +285,16 @@ public:
 
 	void setPan(dup_val pan)
 	{
-		//this->pan = pan;
-		//if(soundCollector != NULL) //soundCollector->Pan = pan;
-		//	soundCollector->setPan(pan);
+
 		if (soundCollector != NULL)
 		{			
-			if (soundCollector->getCurrentInstrumentNumber() != 0)
-			{
-				soundCollector->setInstrumentPan(pan);
-				return;
-			}			
+			//if (soundCollector->getCurrentInstrumentNumber() != 0)
+			//{
+			//	soundCollector->setInstrumentPan(pan);
+			//	return;
+			//}
+
+			soundCollector->setPan(pan);
 		}
 		
 		this->pan = pan;

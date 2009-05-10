@@ -256,7 +256,7 @@ void playMidiQueue()
 				//	MessageBox(hwnd,"we had an midi out (feedback) error before!","error",MB_OK);
 				//}
 
-				if (sendFeedback && (midiOutOpenResult == MMSYSERR_NOERROR))
+				if (sendFeedback && (midiOutOpenResult == MMSYSERR_NOERROR) && REAL_TIME)
 				{					
 					DWORD midiMessage;
 					int nIter = sizeof(DWORD) / sizeof(dup_uint8);
