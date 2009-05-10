@@ -318,6 +318,18 @@ public:
 		}
 	}
 
+	void setPan(double Pan)
+	{
+		if (getCurrentInstrumentNumber() != 0)
+		{
+			setInstrumentPan(Pan);
+		}
+		else
+		{
+			this->Pan = Pan;
+		}
+	}
+
 	
 	bool Run()
 	{

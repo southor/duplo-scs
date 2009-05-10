@@ -163,7 +163,7 @@ public:
 		int max;		
 		double rest = 1.0;
 		if (CutOff == 1.0) max = Harmonic->Height();
-		else if (CutOff == 0.0) max = 1;
+		//else if (CutOff == 0.0) max = 1;
 		else
 		{
 			double value = 1 + CutOff*CutOff*(Harmonic->Height()-1) + 0.5;
