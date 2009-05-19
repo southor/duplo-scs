@@ -751,6 +751,11 @@ public:
 						Compressor *compressor = (Compressor*)(mH->getModule(2000+channel*100+21));
 						if (compressor != NULL) compressor->setRelease(value);						
 					}
+					else if (cntrl == 57) // compressor bypass (switch)
+					{
+						Compressor *compressor = (Compressor*)(mH->getModule(2000+channel*100+21));
+						if (compressor != NULL) compressor->setBypass(value);						
+					}
 					else if (cntrl == 7) // out volume
 					{
 						Compressor *compressor = (Compressor*)(mH->getModule(2000+channel*100+21));

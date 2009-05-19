@@ -789,7 +789,7 @@ void SCSCreateInstrument(SCSPlayer *SCSP, SoundCollector *soundCollector, dup_ui
 			soundCollector->addAP(&(SCSi1->Amp), NULL, soundCollector->getInstrumentUse());
 
 
-			SCSP->newControllers(6);
+			SCSP->newControllers(9);
 			
 			attackController.SCSController = &(SCSi1->Env1->Attack);
 			holdController.SCSController = &(SCSi1->Env1->Hold);
@@ -809,13 +809,35 @@ void SCSCreateInstrument(SCSPlayer *SCSP, SoundCollector *soundCollector, dup_ui
 			SCSP->setController(sustainController, 3);
 			SCSP->setController(releaseController, 4);
 
+			controller.central = 0.5;
+			controller.span = 1.0;
+			controller.defVal = 0.0;
+			controller.midiController = 46; // brightness
+			controller.SCSController = &(SCSi1->Brightness);
+			SCSP->setController(controller, 5);
 
 			controller.central = 3.0;
 			controller.span = 3.0;
 			controller.defVal = 0.0;
 			controller.midiController = 40; // mod1
 			controller.SCSController = &(SCSi1->Mod1);
-			SCSP->setController(controller, 05);
+			SCSP->setController(controller, 6);
+
+			controller.central = 0.5;
+			controller.span = 1.0;
+			controller.defVal = 0.0;
+			controller.midiController = 41; // mod2
+			controller.SCSController = &(SCSi1->Mod2);
+			SCSP->setController(controller, 7);
+
+			
+
+			controller.central = 1.0;
+			controller.span = 2.0;
+			controller.defVal = 0.0;
+			controller.midiController = 42; // mod3
+			controller.SCSController = &(SCSi1->Mod3);
+			SCSP->setController(controller, 8);
 
 
 
