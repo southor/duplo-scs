@@ -25,6 +25,7 @@ private:
 	static const dup_val RATE_MOD; // length of attack/release
 
 	static const dup_val LOUDNESS_MOD;
+	static const dup_val BYPASS_LOUDNESS_MOD;
 	
 	// dynamic modifiers
 
@@ -36,6 +37,8 @@ private:
 
 	dup_val outGain1;
 	dup_val outGain2;
+
+	bool bypass;
 	
 	// ports
 
@@ -150,12 +153,15 @@ public:
 		outGain1 = 1.0;
 		outGain2 = 1.0;
 
+		bypass = false;
+
 	}
 
 	void setThreshold(dup_val threshold)				{ this->threshold = threshold; }
 	void setRatio(dup_val ratio)						{ this->ratio = ratio; }	
 	void setAttack(dup_val attack)						{ this->attack = attack; }
 	void setRelease(dup_val release)					{ this->release = release; }
+	void setBypass(dup_val bypass)						{ this->bypass = (bypass > 0.5) ? true : false; }
 	void setOutGain1(dup_val gain)						{ this->outGain1 = gain; }
 	void setOutGain2(dup_val gain)						{ this->outGain2 = gain; }
 
@@ -177,16 +183,27 @@ public:
 		//dup_val aLoudness = LOUDNESS_MOD * loudness;
 
 		//dup_val compress = THRESHOLD_MOD * aThreshold * aThreshold * aThreshold;
-		dup_val compress1 = COMPRESS_MOD / (ratio + MIN_RATIO);
-		dup_val compress2 = sqrt(compress1) * compress1;
-		dup_val compress3 = compress1 * compress1;
-		dup_val compress4 = compress1 * compress3;
 
-		outputL = outGain1 * outGain2 * LOUDNESS_MOD * compress2 * calcCompressOutput(compress4, inputL);
-		outputR = outGain1 * outGain2 * LOUDNESS_MOD * compress2 * calcCompressOutput(compress4, inputR);
+		double valueL, valueR;
+		if (bypass)
+		{
+			valueL = inputL * BYPASS_LOUDNESS_MOD;
+			valueR = inputR * BYPASS_LOUDNESS_MOD;
+		}
+		else
+		{
 
-		//outputL = inputL;
-		//outputR = inputR;
+			dup_val compress1 = COMPRESS_MOD / (ratio + MIN_RATIO);
+			dup_val compress2 = sqrt(compress1) * compress1;
+			dup_val compress3 = compress1 * compress1;
+			dup_val compress4 = compress1 * compress3;
+
+			valueL = LOUDNESS_MOD * compress2 * calcCompressOutput(compress4, inputL);
+			valueR = LOUDNESS_MOD * compress2 * calcCompressOutput(compress4, inputL);
+		}
+
+		outputL = outGain1 * outGain2 * valueL;
+		outputR = outGain1 * outGain2 * valueR;
 	}
 
 };
@@ -194,6 +211,7 @@ public:
 
 const dup_val Compressor::RATE_MOD = 1.0;
 const dup_val Compressor::LOUDNESS_MOD = 6.0;
+const dup_val Compressor::BYPASS_LOUDNESS_MOD = 4.0;
 const dup_val Compressor::MIN_RATIO = 0.2;
 
 //const dup_val Compressor::RATIO_MIN = 0.0;

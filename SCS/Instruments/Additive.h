@@ -14,6 +14,8 @@ public:
 	double TimePos;
 	double Pos;
 	double ReleaseStart;
+	double Presence;
+	double AttackSpeed;
 
 	// Modules
 	Image *Harmonic;
@@ -33,6 +35,7 @@ public:
 	double Resolution;
 	bool ConstantSpeed;
 	double Release;
+	
 
 	Additive(char *filename) : Instrument()
 	{
@@ -40,6 +43,8 @@ public:
 		
 
 		Pos = 0;
+		Presence = 0.0;
+		AttackSpeed = 1.0; // do not change this, not a constant.
 		
 		Amp1 = 0; Pan1 = -1;
 		Amp2 = 0; Pan2 = 0;
@@ -70,7 +75,7 @@ public:
 	void NoteOn()
 	{
 		TimePos = 0;
-		Pos = 0;
+		Pos = Loop(Pos);
 		Playing = true;
 		ReleaseStart = 1000000000.0;
 	}
@@ -82,6 +87,8 @@ public:
 		//double Env = Shot(PlayPos*30);
 		//double Env = 1.0;
 		Pos = Pos+TimeStep*Fre;	
+
+		
 		
 		//Mod = Fall2(TimePos*8)*100+2;
 		//Amp = Sine(Pos);
@@ -92,7 +99,7 @@ public:
 		Amp2 = 0;
 		Amp3 = 0;
 		
-		int x;		
+		double x;		
 		double P = TimePos * Resolution / (double)Harmonic->Width();
 
 		if (ConstantSpeed)
@@ -111,6 +118,8 @@ public:
 		{
 			x = Rise2(P)*(double)Harmonic->Width();
 		}
+		int xi = x;
+		double xRest = x - xi;
 
 		double HighMute;
 		if (HighAmplify > 0.0) HighMute = 1.0 / HighAmplify;
@@ -126,18 +135,38 @@ public:
 		//if (Apply1) ApplyHarmonics1(x, HighMute, HarmonicMod);
 		//else ApplyHarmonics2(x, HighMute, HarmonicMod);
 		
-		ApplyHarmonics1(x, HighMute, HarmonicMod);
+		ApplyHarmonics1(xi, xRest, HighMute, HarmonicMod);
 		
 		
 		
 		//Amp = Fall2(Loop(Pos));
 
-		double ReleaseVol = Fall2S((TimePos-ReleaseStart)/Release, 1.0)*Vol;
-		Amp1 = Amp1*ReleaseVol;
-		Amp2 = Amp2*ReleaseVol;
-		Amp3 = Amp3*ReleaseVol;
+		
+		if (TimePos > ReleaseStart+Release)
+		{
+			Playing = false;
+			Presence = 0.0;
+			AttackSpeed = 1.0;
+		}
+		else if (TimePos > ReleaseStart)
+		{
+			Presence = Fall2S((TimePos-ReleaseStart)/Release, 1.0);
+			AttackSpeed = 1.0 - Presence;
+			if (AttackSpeed > 1.0) AttackSpeed = 1.0;
+		}
+		else if (Presence < 1.0)
+		{
+			//MessageBox(NULL, "attack phase", "ok", MB_ICONEXCLAMATION | MB_OK);
+			Presence += AttackSpeed * TimeStep * 1000.0; // change attack speed constant here
+			if (Presence > 1.0) Presence = 1.0;
+		}
+
+		double ActualVol = Presence * Vol;
+		Amp1 = Amp1*ActualVol;
+		Amp2 = Amp2*ActualVol;
+		Amp3 = Amp3*ActualVol;
 				
-		if (TimePos > ReleaseStart+Release) Playing = false;
+		
 		
 		
 		return Playing;
@@ -153,7 +182,7 @@ public:
 	{
 	}
 
-	void ApplyHarmonics1(int x, double HighMute, double HarmonicMod)
+	void ApplyHarmonics1(int x, double xRest, double HighMute, double HarmonicMod)
 	{
 		double Amp;
 		double Wave;
@@ -161,7 +190,7 @@ public:
 
 		// CutOff calculation
 		int max;		
-		double rest = 1.0;
+		double rest2 = 1.0;
 		if (CutOff == 1.0) max = Harmonic->Height();
 		//else if (CutOff == 0.0) max = 1;
 		else
@@ -172,9 +201,9 @@ public:
 			if (max > Harmonic->Height()) max = Harmonic->Height();
 			else if (max < 1) max = 1;
 			
-			rest = value - max;			
-			if (rest < 0.0) rest = 0.0;
-			else if (rest > 1.0) rest = 1.0;
+			rest2 = value - max;			
+			if (rest2 < 0.0) rest2 = 0.0;
+			else if (rest2 > 1.0) rest2 = 1.0;
 		}
 
 		for (int i=1;i<=max;i++)
@@ -187,12 +216,24 @@ public:
 			int HarmonicNum = static_cast<int>((i-1)*HarmonicMod) + 1;
 			
 			Amp = 0.15 / ((double)HarmonicNum*HighMute+(1.0-HighMute));
-			if (i == max) Amp *= rest;
+			if (i == max) Amp *= rest2;
 			Wave = rSin(Pos*HarmonicNum);
+
+			double x0Amp = Amp *(1.0-xRest);
+			double x1Amp = Amp * xRest;
 			
-			Amp1 = Amp1 + Wave*Harmonic->getValue1(x,y)*Amp;
-			Amp2 = Amp2 + Wave*Harmonic->getValue2(x,y)*Amp;
-			Amp3 = Amp3 + Wave*Harmonic->getValue3(x,y)*Amp;
+			Amp1 = Amp1 + Wave*Harmonic->getValue1(x,y)*x0Amp;
+			Amp2 = Amp2 + Wave*Harmonic->getValue2(x,y)*x0Amp;
+			Amp3 = Amp3 + Wave*Harmonic->getValue3(x,y)*x0Amp;
+
+
+			if (x < (Harmonic->Width()-1)) // do we have room to add second x value?
+			{
+				Amp1 = Amp1 + Wave*Harmonic->getValue1(x+1,y)*x1Amp;
+				Amp2 = Amp2 + Wave*Harmonic->getValue2(x+1,y)*x1Amp;
+				Amp3 = Amp3 + Wave*Harmonic->getValue3(x+1,y)*x1Amp;
+			}
+
 			//if (i% == 1) 
 			//Amp = Amp + Fall2(i)*0.3*rSin(Pos*i)*(i%3);
 		}
