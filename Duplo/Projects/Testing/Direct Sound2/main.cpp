@@ -1359,42 +1359,55 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			////	MessageBox(NULL, "midi port not found", "Error", MB_ICONEXCLAMATION | MB_OK);
 			////}
 
-			if (!(MIDI_IN_PORT < midiInGetNumDevs())) MessageBox(NULL, "midi in port not found", "Error", MB_ICONEXCLAMATION | MB_OK);
-			if (!(MIDI_IN_MIX_PORT < midiInGetNumDevs())) MessageBox(NULL, "midi in \"mix\" port not found", "Error", MB_ICONEXCLAMATION | MB_OK);
-			if (!(MIDI_OUT_PORT < midiOutGetNumDevs())) MessageBox(NULL, "midi out port not found", "Error", MB_ICONEXCLAMATION | MB_OK);
+			
+			
+			
 
-			midiInOpenResult = midiInOpen(&hMidiIn, MIDI_IN_PORT,
-											(DWORD)&midiInputCallback0, (DWORD)NULL,
-											CALLBACK_FUNCTION);
-			if (midiInOpenResult == MMSYSERR_NOERROR)
+			if (MIDI_IN_PORT >= 0)
 			{
-				midiInStart( hMidiIn );
+				if (!(MIDI_IN_PORT < midiInGetNumDevs())) MessageBox(NULL, "midi in port not found", "Error", MB_ICONEXCLAMATION | MB_OK);
+
+				midiInOpenResult = midiInOpen(&hMidiIn, MIDI_IN_PORT,
+												(DWORD)&midiInputCallback0, (DWORD)NULL,
+												CALLBACK_FUNCTION);
+				if (midiInOpenResult == MMSYSERR_NOERROR)
+				{
+					midiInStart( hMidiIn );
+				}
+				else MessageBox(NULL, "Error opening midi in port", "Error", MB_ICONEXCLAMATION | MB_OK);
 			}
-			else MessageBox(NULL, "Error opening midi in port", "Error", MB_ICONEXCLAMATION | MB_OK);
 
 
-			midiInOpenResult = midiInOpen(&hMidiInMix, MIDI_IN_MIX_PORT,
-											(DWORD)&midiInputCallback1, (DWORD)NULL,
-											CALLBACK_FUNCTION);
-			if (midiInOpenResult == MMSYSERR_NOERROR)
+			if (MIDI_IN_MIX_PORT >= 0)
 			{
-				midiInStart( hMidiInMix );
+				if (!(MIDI_IN_MIX_PORT < midiInGetNumDevs())) MessageBox(NULL, "midi in \"mix\" port not found", "Error", MB_ICONEXCLAMATION | MB_OK);
+				
+				midiInOpenResult = midiInOpen(&hMidiInMix, MIDI_IN_MIX_PORT,
+												(DWORD)&midiInputCallback1, (DWORD)NULL,
+												CALLBACK_FUNCTION);
+				if (midiInOpenResult == MMSYSERR_NOERROR)
+				{
+					midiInStart( hMidiInMix );
+				}
+				else MessageBox(NULL, "Error opening midi in mix port", "Error", MB_ICONEXCLAMATION | MB_OK);
 			}
-			else MessageBox(NULL, "Error opening midi in mix port", "Error", MB_ICONEXCLAMATION | MB_OK);
 
-
-			midiOutOpenResult = midiOutOpen(&hMidiOut, MIDI_OUT_PORT,
-											(DWORD)NULL, (DWORD)NULL,
-											CALLBACK_NULL);
-			/*			
-			if (midiOutOpenResult == MMSYSERR_NOERROR)
+			if (MIDI_OUT_PORT >= 0)
 			{
-				midiOutStart( hMidiOut );
-			}
-			else
-			*/
-			if (midiOutOpenResult != MMSYSERR_NOERROR) MessageBox(NULL, "Error opening midi out port", "Error", MB_ICONEXCLAMATION | MB_OK);
+				if (!(MIDI_OUT_PORT < midiOutGetNumDevs())) MessageBox(NULL, "midi out port not found", "Error", MB_ICONEXCLAMATION | MB_OK);
 
+				midiOutOpenResult = midiOutOpen(&hMidiOut, MIDI_OUT_PORT,
+												(DWORD)NULL, (DWORD)NULL,
+												CALLBACK_NULL);
+				/*			
+				if (midiOutOpenResult == MMSYSERR_NOERROR)
+				{
+					midiOutStart( hMidiOut );
+				}
+				else
+				*/
+				if (midiOutOpenResult != MMSYSERR_NOERROR) MessageBox(NULL, "Error opening midi out port", "Error", MB_ICONEXCLAMATION | MB_OK);
+			}
 
 
 			//MessageBox(hwnd,"forward 06","ok",MB_OK);
@@ -1603,16 +1616,22 @@ error:
 
 	if (midiInOpenResult == MMSYSERR_NOERROR)
 	{
-		midiInReset( hMidiIn );
-		midiInStop( hMidiIn );
-		midiInClose( hMidiIn );
+		if (MIDI_IN_PORT >= 0)
+		{
+			midiInReset( hMidiIn );
+			midiInStop( hMidiIn );
+			midiInClose( hMidiIn );
+		}
 
-		midiInReset( hMidiInMix );
-		midiInStop( hMidiInMix );
-		midiInClose( hMidiInMix );
+		if (MIDI_IN_MIX_PORT >= 0)
+		{
+			midiInReset( hMidiInMix );
+			midiInStop( hMidiInMix );
+			midiInClose( hMidiInMix );
+		}
 	}
 
-	if (midiOutOpenResult == MMSYSERR_NOERROR)
+	if ((midiOutOpenResult == MMSYSERR_NOERROR) && (MIDI_OUT_PORT >= 0))
 	{
 		midiOutReset( hMidiOut );
 		//midiOutStop( hMidiOut );
